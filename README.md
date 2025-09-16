@@ -32,3 +32,8 @@ French: voiture noire
 Encoder: "I am eating" → [0.3, 0.6, -0.2,...]
 Decoder: generates "Je mange"
 Attention: focuses on relevant words during translation
+
+
+## 🌐 Web App Version
+The project also includes an **HTML interface** that allows users to run the app directly in a browser.  
+Simply open the `app.html` file in your browser to test the dictionary and translation features.
