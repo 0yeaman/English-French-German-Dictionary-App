@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English-French-German Dictionary App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0e7ee; /* Lighter blue-grey background */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top to allow scrolling if content is long */
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px 20px; /* More padding top/bottom */
+            box-sizing: border-box;
+        }
+        .main-container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            max-width: 700px; /* Slightly wider to accommodate sections */
+            width: 100%;
+            text-align: center;
+        }
+        .section-container {
+            background-color: #f8fafc; /* Very light blue-grey for sections */
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0; /* Light border for definition */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Subtle inner shadow */
+        }
+        .section-container:last-child {
+            margin-bottom: 0; /* No margin below the last section */
+        }
+        h1 {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700; /* font-bold */
+            color: #2d3748; /* Dark grey text */
+            margin-bottom: 25px;
+        }
+        h2 {
+            font-size: 1.75rem; /* text-3xl */
+            font-weight: 600; /* font-semibold */
+            color: #4a5568; /* Medium grey text */
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #cbd5e1; /* Underline effect */
+        }
+        input[type="text"],
+        textarea {
+            width: calc(100% - 24px); /* Account for padding */
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #a0aec0; /* Medium grey border */
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08); /* Inner shadow for depth */
+        }
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #63b3ed; /* Lighter blue focus border */
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.5); /* Focus ring */
+        }
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+        button {
+            background-color: #4299e1; /* Blue button */
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
+            letter-spacing: 0.5px;
+        }
+        button:hover {
+            background-color: #3182ce; /* Darker blue on hover */
+            transform: translateY(-3px); /* Lift effect */
+            box-shadow: 0 8px 20px rgba(66, 153, 225, 0.5);
+        }
+        .translation-output {
+            margin-top: 25px;
+            padding: 18px;
+            background-color: #e6fffa; /* Light teal background for output */
+            border-radius: 10px;
+            text-align: left;
+            border: 1px solid #b2f5ea; /* Teal border */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .translation-output p {
+            margin: 8px 0;
+            font-size: 18px;
+            color: #2d3748;
+            line-height: 1.5;
+        }
+        .translation-output strong {
+            color: #2c5282; /* Darker blue for labels */
+            font-weight: 700;
+        }
+        .error-message {
+            color: #e53e3e; /* Red for errors */
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .placeholder-text {
+            color: #718096; /* Grey for placeholder */
+            font-style: italic;
+            margin-top: -10px; /* Adjust spacing */
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>English-French-German Dictionary App</h1>
+
+        <!-- PART I: Interbase Dictionary (English -> French -> German) -->
+        <div class="section-container">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">PART I: Interbase Dictionary (English → French → German)</h2>
+            <p class="text-gray-600 mb-4">Enter an English word. The app translates it into German through French, displaying both French and German outputs.</p>
+
+            <input type="text" id="interbaseWordInput" placeholder="e.g., hello, car, dog">
+            <button onclick="translateInterbaseWord()">Translate Word</button>
+
+            <div id="interbaseOutput" class="translation-output hidden">
+                <p><strong>English:</strong> <span id="outputInterbaseEnglish"></span></p>
+                <p><strong>French:</strong> <span id="outputInterbaseFrench"></span></p>
+                <p><strong>German:</strong> <span id="outputInterbaseGerman"></span></p>
+            </div>
+            <p id="interbaseErrorMessage" class="error-message hidden"></p>
+        </div>
+
+        <!-- PART II: Rule-Based Sentence Translator (English to French) -->
+        <div class="section-container">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">PART II: Rule-Based Sentence Translator (English → French)</h2>
+            <p class="text-gray-600 mb-4">Enter an English sentence. The app will translate words to French and reorder them based on simple French grammar rules (e.g., "black car" becomes "voiture noire").</p>
+
+            <textarea id="sentenceInput" placeholder="e.g., black car, red apple, the dog eats food"></textarea>
+            <button onclick="translateAndReorderSentence()">Translate Sentence</button>
+
+            <div id="sentenceOutput" class="translation-output hidden">
+                <p><strong>English Input:</strong> <span id="outputSentenceEnglish"></span></p>
+                <p><strong>French Output:</strong> <span id="outputSentenceFrench"></span></p>
+            </div>
+            <p id="sentenceErrorMessage" class="error-message hidden"></p>
+        </div>
+    </div>
+
+    <script>
+        // --- Dictionaries for Part I (English -> French -> German) ---
+        const englishToFrench = {
+            "hello": "bonjour",
+            "goodbye": "au revoir",
+            "thank you": "merci",
+            "please": "s'il vous plaît",
+            "yes": "oui",
+            "no": "non",
+            "car": "voiture",
+            "dog": "chien",
+            "cat": "chat",
+            "house": "maison",
+            "book": "livre",
+            "water": "eau",
+            "food": "nourriture",
+            "apple": "pomme",
+            "tree": "arbre",
+            "run": "courir",
+            "eat": "manger",
+            "drink": "boire",
+            "read": "lire",
+            "write": "écrire",
+            "big": "grand",
+            "small": "petit",
+            "red": "rouge",
+            "blue": "bleu",
+            "green": "vert",
+            "black": "noir",
+            "white": "blanc",
+            "one": "un",
+            "two": "deux",
+            "three": "trois"
+        };
+
+        const frenchToGerman = {
+            "bonjour": "hallo",
+            "au revoir": "auf wiedersehen",
+            "merci": "danke",
+            "s'il vous plaît": "bitte",
+            "oui": "ja",
+            "non": "nein",
+            "voiture": "auto",
+            "chien": "hund",
+            "chat": "katze",
+            "maison": "haus",
+            "livre": "buch",
+            "eau": "wasser",
+            "nourriture": "essen",
+            "pomme": "apfel",
+            "arbre": "baum",
+            "courir": "laufen",
+            "manger": "essen",
+            "boire": "trinken",
+            "lire": "lesen",
+            "écrire": "schreiben",
+            "grand": "groß",
+            "petit": "klein",
+            "rouge": "rot",
+            "bleu": "blau",
+            "vert": "grün",
+            "noir": "schwarz",
+            "blanc": "weiß",
+            "un": "eins",
+            "deux": "zwei",
+            "trois": "drei"
+        };
+
+        // --- Dictionaries for Part II (English -> French Rule-Based) ---
+        const englishToFrenchWordsForSentence = {
+            "the": "le", // Masculine singular, simplified
+            "a": "un",   // Masculine singular, simplified
+            "an": "un",  // Masculine singular, simplified
+            "black": "noir",
+            "white": "blanc",
+            "red": "rouge",
+            "blue": "bleu",
+            "green": "vert",
+            "car": "voiture", // feminine, so 'noire' for black car
+            "dog": "chien",
+            "cat": "chat",
+            "house": "maison",
+            "apple": "pomme",
+            "eats": "mange",
+            "food": "nourriture",
+            "is": "est",
+            "big": "grand",
+            "small": "petit",
+            "beautiful": "beau", // masculine
+            "girl": "fille",
+            "boy": "garçon",
+            "book": "livre",
+            "reads": "lit",
+            "and": "et"
+        };
+
+        // Define specific adjective-noun pairs that need reordering in French
+        // English order: [adjective, noun] -> French order: [noun, adjective]
+        // Note: Adjectives in French often agree in gender and number with the noun.
+        // This dictionary simplifies by providing the correct gender/number for the common cases.
+        const reorderPairsFrench = {
+            "black car": ["voiture", "noire"], // 'car' is feminine, so 'noir' becomes 'noire'
+            "red apple": ["pomme", "rouge"],
+            "big house": ["maison", "grande"], // 'house' is feminine, so 'grand' becomes 'grande'
+            "white dog": ["chien", "blanc"],
+            "blue car": ["voiture", "bleue"], // 'car' is feminine, so 'bleu' becomes 'bleue'
+            "beautiful girl": ["fille", "belle"], // 'girl' is feminine, so 'beau' becomes 'belle'
+            "small cat": ["chat", "petit"]
+        };
+
+
+        // --- PART I: Interbase Translation Function ---
+        function translateInterbaseWord() {
+            const englishWordInput = document.getElementById('interbaseWordInput');
+            const englishWord = englishWordInput.value.trim().toLowerCase();
+            const outputEnglish = document.getElementById('outputInterbaseEnglish');
+            const outputFrench = document.getElementById('outputInterbaseFrench');
+            const outputGerman = document.getElementById('outputInterbaseGerman');
+            const outputDiv = document.getElementById('interbaseOutput');
+            const errorMessageDiv = document.getElementById('interbaseErrorMessage');
+
+            // Clear previous outputs and error messages
+            outputEnglish.textContent = '';
+            outputFrench.textContent = '';
+            outputGerman.textContent = '';
+            outputDiv.classList.add('hidden');
+            errorMessageDiv.classList.add('hidden');
+            errorMessageDiv.textContent = '';
+
+            if (!englishWord) {
+                errorMessageDiv.textContent = 'Please enter an English word.';
+                errorMessageDiv.classList.remove('hidden');
+                return;
+            }
+
+            // Step 1: Translate English to French
+            const frenchWord = englishToFrench[englishWord];
+
+            if (frenchWord) {
+                // Step 2: Translate French to German
+                const germanWord = frenchToGerman[frenchWord];
+
+                if (germanWord) {
+                    // Display all translations
+                    outputEnglish.textContent = englishWord;
+                    outputFrench.textContent = frenchWord;
+                    outputGerman.textContent = germanWord;
+                    outputDiv.classList.remove('hidden');
+                } else {
+                    // French word found, but no German translation
+                    outputEnglish.textContent = englishWord;
+                    outputFrench.textContent = frenchWord;
+                    outputGerman.textContent = 'Translation not found in German dictionary.';
+                    outputDiv.classList.remove('hidden');
+                    errorMessageDiv.textContent = `German translation for "${frenchWord}" not found.`;
+                    errorMessageDiv.classList.remove('hidden');
+                }
+            } else {
+                // English word not found in the first dictionary
+                errorMessageDiv.textContent = `English word "${englishWord}" not found in dictionary.`;
+                errorMessageDiv.classList.remove('hidden');
+            }
+        }
+
+        // --- PART II: Rule-Based Sentence Translation Function (English to French) ---
+        function translateAndReorderSentence() {
+            const englishSentenceInput = document.getElementById('sentenceInput');
+            const englishSentence = englishSentenceInput.value.trim().toLowerCase();
+            const outputSentenceEnglish = document.getElementById('outputSentenceEnglish');
+            const outputSentenceFrench = document.getElementById('outputSentenceFrench');
+            const outputDiv = document.getElementById('sentenceOutput');
+            const errorMessageDiv = document.getElementById('sentenceErrorMessage');
+
+            // Clear previous outputs and error messages
+            outputSentenceEnglish.textContent = '';
+            outputSentenceFrench.textContent = '';
+            outputDiv.classList.add('hidden');
+            errorMessageDiv.classList.add('hidden');
+            errorMessageDiv.textContent = '';
+
+            if (!englishSentence) {
+                errorMessageDiv.textContent = 'Please enter an English sentence.';
+                errorMessageDiv.classList.remove('hidden');
+                return;
+            }
+
+            outputSentenceEnglish.textContent = englishSentence;
+
+            let finalFrenchWords = [];
+            const words = englishSentence.split(/\s+/); // Split by one or more spaces
+
+            let sentenceHandledByReorder = false;
+            let tempSentenceWords = [...words]; // Create a mutable copy of the words array
+
+            // Iterate through reorderPairsFrench to find and apply rules
+            for (const englishPair in reorderPairsFrench) {
+                const [adj, noun] = englishPair.split(' ');
+                const frenchReordered = reorderPairsFrench[englishPair]; // [french_noun, french_adjective]
+
+                // Find the indices of the adjective and noun in the current sentence
+                const adjIndex = tempSentenceWords.indexOf(adj);
+                const nounIndex = tempSentenceWords.indexOf(noun);
+
+                // Check if both words are found and are consecutive in the English sentence
+                if (adjIndex !== -1 && nounIndex === adjIndex + 1) {
+                    // Replace the English adjective and noun with the reordered French noun and adjective
+                    tempSentenceWords.splice(adjIndex, 2, frenchReordered[0], frenchReordered[1]);
+                    sentenceHandledByReorder = true;
+                    break; // Apply only the first matching reorder rule found
+                }
+            }
+
+            // Translate remaining words or all words if no reorder rule was applied
+            finalFrenchWords = tempSentenceWords.map(word => {
+                // If a word was part of a reordered pair, it's already in French and correctly placed.
+                // Otherwise, translate it individually.
+                if (Object.values(reorderPairsFrench).some(pair => pair.includes(word))) {
+                    return word; // Keep the already reordered/translated word
+                }
+                return englishToFrenchWordsForSentence[word] || word; // Translate individual word
+            });
+
+
+            outputSentenceFrench.textContent = finalFrenchWords.join(' ');
+            outputDiv.classList.remove('hidden');
+
+            // Optional: Add a warning if some words weren't translated
+            const untranslated = words.filter(word => !englishToFrenchWordsForSentence[word] && !Object.keys(reorderPairsFrench).some(pair => englishSentence.includes(pair)));
+            if (untranslated.length > 0) {
+                errorMessageDiv.textContent = `Note: Some words were not translated: ${untranslated.join(', ')}.`;
+                errorMessageDiv.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
